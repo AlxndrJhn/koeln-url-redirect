@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Köln Ratsinfo Redirect",
+  "version": "1.0.0",
+  "description": "Redirects old Stadt Köln SessionNet file URLs to the new ratsinformation host.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "koeln-url-redirect@localhost",
+      "data_collection_permissions": {
+        "required": ["websiteContent"]
+      }
+    }
+  },
+  "permissions": ["declarativeNetRequest"],
+  "host_permissions": [
+    "https://ratsinfo.sessionnet.verwaltung.stadtkoeln.de/*"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "regexSubstitution": "https://ratsinformation.stadt-koeln.de\\1"
+      }
+    },
+    "condition": {
+      "regexFilter": "https://ratsinfo\\.sessionnet\\.verwaltung\\.stadtkoeln\\.de(.*)",
+      "resourceTypes": ["main_frame", "sub_frame"]
+    }
+  }
+]
