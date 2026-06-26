@@ -5,11 +5,28 @@
     "action": {
       "type": "redirect",
       "redirect": {
-        "regexSubstitution": "https://ratsinformation.alex-360.com\\1"
+        "regexSubstitution": "https://ratsinformation.stadt-koeln.de\\1"
       }
     },
     "condition": {
-      "regexFilter": "https://(?:ratsinfo\\.sessionnet\\.verwaltung\\.stadtkoeln\\.de|ratsinformation\\.stadt-koeln\\.de)(.*)",
+      "regexFilter": "https://ratsinfo\\.sessionnet\\.verwaltung\\.stadtkoeln\\.de(.*)",
+      "resourceTypes": [
+        "main_frame",
+        "sub_frame"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "regexSubstitution": "https://ratsinformation.alex-360.com/getfile.asp?id=\\1"
+      }
+    },
+    "condition": {
+      "regexFilter": "https://ratsinformation\\.stadt-koeln\\.de/getfile\\.asp\\?id=(.*)",
       "resourceTypes": [
         "main_frame",
         "sub_frame"
