@@ -28,13 +28,13 @@ jobs:
       - name: Upload Firefox artifact
         uses: actions/upload-artifact@v4
         with:
-          name: koeln-ratsinfo-mirror-firefox
+          name: firefox
           path: dist/koeln-ratsinfo-mirror-firefox.zip
 
       - name: Upload Chrome artifact
         uses: actions/upload-artifact@v4
         with:
-          name: koeln-ratsinfo-mirror-chrome
+          name: chrome
           path: dist/koeln-ratsinfo-mirror-chrome.zip
 
   release:
