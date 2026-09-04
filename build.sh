@@ -14,6 +14,9 @@ for f in "${SHARED_FILES[@]}"; do
   cp "$ROOT_DIR/$f" "$DIST_DIR/chrome/$f"
 done
 
+cp -R "$ROOT_DIR/icons" "$DIST_DIR/firefox/icons"
+cp -R "$ROOT_DIR/icons" "$DIST_DIR/chrome/icons"
+
 cp "$ROOT_DIR/manifest.json" "$DIST_DIR/firefox/manifest.json"
 cp "$ROOT_DIR/manifest.chrome.json" "$DIST_DIR/chrome/manifest.json"
 
