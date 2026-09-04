@@ -5,7 +5,7 @@
   "description": "Ändert die langsamen Stadt Köln URLs zu einem schnelleren Mirror.",
   "browser_specific_settings": {
     "gecko": {
-      "id": "koeln-ratsinfo-mirror@localhost",
+      "id": "koeln-url-redirect@localhost",
       "data_collection_permissions": {
         "required": [
           "websiteContent"
