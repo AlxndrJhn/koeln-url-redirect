@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Köln Ratsinfo Redirect",
+  "version": "1.2.0",
+  "description": "Ändert die langsamen Stadt Köln SessionNet URLs zu den neuen ratsinformation URLs auf ratsinformation.alex-360.com .",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "declarativeNetRequest",
+    "storage",
+    "webNavigation",
+    "webRequest",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://ratsinfo.sessionnet.verwaltung.stadtkoeln.de/*",
+    "https://ratsinformation.stadt-koeln.de/getfile.asp?id=*",
+    "https://ratsinformation.alex-360.com/getfile.asp?id=*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Köln Ratsinfo Redirect"
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
+}

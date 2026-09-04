@@ -1,3 +1,19 @@
+# Köln Ratsinfo Redirect
+
+Redirects some slow Stadt Köln file links to a faster mirror. If the mirror doesn't respond within 2 seconds, the extension automatically falls back to the original stadt-koeln.de URL.
+
+Click the toolbar icon to enable/disable the extension or report an issue.
+
+## Build
+
+Run `build.sh` (bash, e.g. Git Bash/WSL/Linux) to produce Firefox and Chrome packages in `dist/`:
+
+```sh
+./build.sh
+```
+
+This copies the shared source files (`background.js`, `popup.*`, `rules.json`) together with the browser-specific `manifest.json` (Firefox) / `manifest.chrome.json` (Chrome) into `dist/firefox` and `dist/chrome`, then zips each into a loadable/installable package. CI (`.github/workflows/build.yml`) runs this on every push/PR and attaches the zips as artifacts, and publishes them to a GitHub release on version tags (`v*`).
+
 # Test Urls
 
 ## Files
