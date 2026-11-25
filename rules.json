@@ -49,5 +49,19 @@
         "sub_frame"
       ]
     }
+  },
+  {
+    "id": 4,
+    "priority": 2,
+    "action": {
+      "type": "allow"
+    },
+    "condition": {
+      "regexFilter": "^https://ratsinformation\\.stadt-koeln\\.de/[^?]*\\?(.*&)?nomirror=1(&|$)",
+      "resourceTypes": [
+        "main_frame",
+        "sub_frame"
+      ]
+    }
   }
 ]
