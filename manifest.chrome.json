@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Köln Ratsinfo Redirect",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Ändert die langsamen Stadt Köln SessionNet URLs zu den neuen ratsinformation URLs auf ratsinformation.alex-360.com .",
   "minimum_chrome_version": "116",
   "permissions": [
