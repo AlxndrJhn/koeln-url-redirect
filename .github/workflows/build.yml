@@ -57,3 +57,67 @@ jobs:
           files: |
             dist/koeln-ratsinfo-mirror-firefox.zip
             dist/koeln-ratsinfo-mirror-chrome.zip
+
+  # Each store job is skipped (with a notice) until its secrets are set.
+  publish-firefox:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    env:
+      AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+      AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build extension packages
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Submit to addons.mozilla.org
+        if: env.AMO_JWT_ISSUER != '' && env.AMO_JWT_SECRET != ''
+        # Submits the new version to the existing listed add-on; Mozilla's
+        # review then publishes it, so the job doesn't wait for approval.
+        run: >
+          npx --yes web-ext@8 sign
+          --source-dir dist/firefox
+          --artifacts-dir dist/web-ext
+          --channel listed
+          --api-key "$AMO_JWT_ISSUER"
+          --api-secret "$AMO_JWT_SECRET"
+          --approval-timeout 0
+
+      - name: Skip without AMO secrets
+        if: env.AMO_JWT_ISSUER == '' || env.AMO_JWT_SECRET == ''
+        run: echo "::notice::AMO_JWT_ISSUER / AMO_JWT_SECRET not set, Firefox upload skipped."
+
+  publish-chrome:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    env:
+      CWS_EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+      CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+      CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+      CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build extension packages
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Upload and publish to the Chrome Web Store
+        if: env.CWS_EXTENSION_ID != '' && env.CWS_CLIENT_ID != '' && env.CWS_CLIENT_SECRET != '' && env.CWS_REFRESH_TOKEN != ''
+        run: >
+          npx --yes chrome-webstore-upload-cli@3
+          --source dist/koeln-ratsinfo-mirror-chrome.zip
+          --extension-id "$CWS_EXTENSION_ID"
+          --client-id "$CWS_CLIENT_ID"
+          --client-secret "$CWS_CLIENT_SECRET"
+          --refresh-token "$CWS_REFRESH_TOKEN"
+
+      - name: Skip without Chrome Web Store secrets
+        if: env.CWS_EXTENSION_ID == '' || env.CWS_CLIENT_ID == '' || env.CWS_CLIENT_SECRET == '' || env.CWS_REFRESH_TOKEN == ''
+        run: echo "::notice::CWS_* secrets not set, Chrome Web Store upload skipped."
