@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Köln Ratsinfo Mirror",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Ändert die langsamen Stadt Köln URLs zu einem schnelleren Mirror.",
   "browser_specific_settings": {
     "gecko": {
@@ -17,8 +17,7 @@
     "declarativeNetRequest",
     "storage",
     "webNavigation",
-    "webRequest",
-    "tabs"
+    "webRequest"
   ],
   "icons": {
     "16": "icons/icon16.png",
