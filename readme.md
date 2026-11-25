@@ -1,6 +1,6 @@
 # Köln Ratsinfo Redirect
 
-Redirects some slow Stadt Köln file links to a faster mirror. If the mirror doesn't respond within 2 seconds, the extension automatically falls back to the original stadt-koeln.de URL.
+Redirects slow Stadt Köln file links (`getfile.asp`) and Vorlage pages (`vo0050.asp`) to a faster mirror, wherever they are opened from (e.g. a Google Sheet). If the mirror doesn't respond within 2 seconds, the extension automatically falls back to the original stadt-koeln.de URL.
 
 Click the toolbar icon to enable/disable the extension or report an issue.
 

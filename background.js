@@ -4,11 +4,16 @@ const api = typeof browser !== "undefined" ? browser : chrome;
 const RULESET_ID = "ruleset_1";
 // Cloudflare returns this when the alex-360 origin is unreachable.
 const BAD_GATEWAY_STATUS = 502;
-// Matches the mirror URL produced by rule 2 in rules.json.
+// Matches the mirror URLs produced by rules 2 (files) and 3 (Vorlagen) in
+// rules.json; captures the page and its query.
 const ALEX_URL_PATTERN =
-  /^https:\/\/ratsinformation\.alex-360\.com\/getfile\.asp\?id=([^&]+)(.*)$/;
+  /^https:\/\/ratsinformation\.alex-360\.com\/(getfile\.asp|vo0050\.asp)\?(.*)$/;
+const ORIGINAL_ORIGIN = "https://ratsinformation.stadt-koeln.de";
 const MIRROR_REQUEST_FILTER = {
-  urls: ["https://ratsinformation.alex-360.com/getfile.asp?id=*"],
+  urls: [
+    "https://ratsinformation.alex-360.com/getfile.asp?id=*",
+    "https://ratsinformation.alex-360.com/vo0050.asp?*",
+  ],
   types: ["main_frame", "sub_frame"],
 };
 
@@ -40,9 +45,13 @@ api.storage.onChanged.addListener((changes, area) => {
   }
 });
 
-// Temporarily allows the original stad-koeln URL to load without being
-// redirected back to the (unreachable) mirror by rule 2.
-async function addFallbackAllowRule(id) {
+function escapeRegex(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Temporarily allows the original stadt-koeln URL to load without being
+// redirected back to the (unreachable) mirror by rules 2 and 3.
+async function addFallbackAllowRule(originalUrl) {
   const ruleId = sessionRuleIdCounter++;
   await api.declarativeNetRequest.updateSessionRules({
     addRules: [
@@ -51,7 +60,7 @@ async function addFallbackAllowRule(id) {
         priority: 2,
         action: { type: "allow" },
         condition: {
-          regexFilter: `https://ratsinformation\\.stadt-koeln\\.de/getfile\\.asp\\?id=${id}(.*)`,
+          regexFilter: `^${escapeRegex(originalUrl)}`,
           resourceTypes: ["main_frame", "sub_frame"],
         },
       },
@@ -66,9 +75,9 @@ async function removeSessionRule(ruleId) {
   });
 }
 
-async function fallbackToOriginal(tabId, id, rest) {
-  const originalUrl = `https://ratsinformation.stadt-koeln.de/getfile.asp?id=${id}${rest || ""}`;
-  const ruleId = await addFallbackAllowRule(id);
+async function fallbackToOriginal(tabId, page, query) {
+  const originalUrl = `${ORIGINAL_ORIGIN}/${page}?${query}`;
+  const ruleId = await addFallbackAllowRule(originalUrl);
   try {
     await api.tabs.update(tabId, { url: originalUrl });
   } finally {
@@ -83,8 +92,8 @@ api.webNavigation.onErrorOccurred.addListener((details) => {
   const match = details.url.match(ALEX_URL_PATTERN);
   if (!match) return;
 
-  const [, id, rest] = match;
-  fallbackToOriginal(details.tabId, id, rest).catch(() => {});
+  const [, page, query] = match;
+  fallbackToOriginal(details.tabId, page, query).catch(() => {});
 });
 
 // Covers Cloudflare's 502 Bad Gateway, which loads as a "successful" navigation
@@ -96,8 +105,8 @@ api.webRequest.onCompleted.addListener((details) => {
   const match = details.url.match(ALEX_URL_PATTERN);
   if (!match) return;
 
-  const [, id, rest] = match;
-  fallbackToOriginal(details.tabId, id, rest).catch(() => {});
+  const [, page, query] = match;
+  fallbackToOriginal(details.tabId, page, query).catch(() => {});
 }, MIRROR_REQUEST_FILTER);
 
 loadEnabledState();

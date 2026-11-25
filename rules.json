@@ -32,5 +32,36 @@
         "sub_frame"
       ]
     }
+  },
+  {
+    "id": 3,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "regexSubstitution": "https://ratsinformation.alex-360.com/vo0050.asp?\\1"
+      }
+    },
+    "condition": {
+      "regexFilter": "https://ratsinformation\\.stadt-koeln\\.de/vo0050\\.asp\\?(.*)",
+      "resourceTypes": [
+        "main_frame",
+        "sub_frame"
+      ]
+    }
+  },
+  {
+    "id": 4,
+    "priority": 2,
+    "action": {
+      "type": "allow"
+    },
+    "condition": {
+      "regexFilter": "^https://ratsinformation\\.stadt-koeln\\.de/[^?]*\\?(.*&)?nomirror=1(&|$)",
+      "resourceTypes": [
+        "main_frame",
+        "sub_frame"
+      ]
+    }
   }
 ]
