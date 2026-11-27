@@ -19,7 +19,11 @@
     "https://ratsinformation.stadt-koeln.de/to0050.asp?*",
     "https://ratsinformation.alex-360.com/to0050.asp?*",
     "https://ratsinformation.stadt-koeln.de/si0057.asp?*",
-    "https://ratsinformation.alex-360.com/si0057.asp?*"
+    "https://ratsinformation.alex-360.com/si0057.asp?*",
+    "https://ratsinformation.stadt-koeln.de/si0040.asp*",
+    "https://ratsinformation.alex-360.com/si0040.asp*",
+    "https://ratsinformation.stadt-koeln.de/si0046.asp*",
+    "https://ratsinformation.alex-360.com/si0046.asp*"
   ],
   "background": {
     "service_worker": "background.js"
