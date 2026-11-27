@@ -12,11 +12,18 @@ Run `build.sh` (bash, e.g. Git Bash/WSL/Linux) to produce Firefox and Chrome pac
 ./build.sh
 ```
 
-This copies the shared source files (`background.js`, `popup.*`, `rules.json`) together with the browser-specific `manifest.json` (Firefox) / `manifest.chrome.json` (Chrome) into `dist/firefox` and `dist/chrome`, then zips each into a loadable/installable package. CI (`.github/workflows/build.yml`) runs this on every push/PR and attaches the zips as artifacts, and publishes them to a GitHub release on version tags (`v*`).
+This copies the shared source files (`background.js`, `popup.*`, `rules.json`) together with the browser-specific `manifest.json` (Firefox) / `manifest.chrome.json` (Chrome) into `dist/firefox` and `dist/chrome`, then zips each into a loadable/installable package. CI (`.github/workflows/build.yml`) runs this on every PR and every merge to `main` and attaches the zips as artifacts. It never releases anything.
 
 ## Release
 
-Bump `version` in both manifests, merge, then push a tag (`git tag v1.5.0 && git push origin v1.5.0`). The tag build also uploads to the stores, each only once its repository secrets are set:
+Merging to `main` doesn't release, so fixes and features can pile up there. Don't bump `version` in PRs. When you're ready to ship, run the **Release** workflow (`.github/workflows/release.yml`) on `main`: Actions → Release → Run workflow, or
+
+```sh
+gh workflow run release.yml -f bump=minor   # patch (default) | minor | major
+gh workflow run release.yml -f version=2.0.0
+```
+
+It bumps `version` in both manifests relative to the latest `v*` tag, commits and tags that on `main`, creates the GitHub release (with notes listing the PRs merged since the last release) and uploads to the stores, each only once its repository secrets are set:
 
 - **Firefox** (addons.mozilla.org, listed add-on `koeln-url-redirect@localhost`): `AMO_JWT_ISSUER`, `AMO_JWT_SECRET` from https://addons.mozilla.org/developers/addon/api/key/. The version goes into Mozilla's review and is published once approved.
 - **Chrome Web Store**: `CWS_EXTENSION_ID` (from the developer dashboard), `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET` (a Google Cloud OAuth client with the Chrome Web Store API enabled) and `CWS_REFRESH_TOKEN` for that client. The version is uploaded and submitted for review.
