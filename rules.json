@@ -131,5 +131,28 @@
         "sub_frame"
       ]
     }
+  },
+  {
+    "id": 9,
+    "priority": 1,
+    "action": {
+      "type": "upgradeScheme"
+    },
+    "condition": {
+      "regexFilter": "^http://(ratsinfo\\.sessionnet\\.verwaltung\\.stadtkoeln\\.de|ratsinformation\\.stadt-koeln\\.de|ratsinformation\\.alex-360\\.com)(/|$)",
+      "resourceTypes": [
+        "main_frame",
+        "sub_frame",
+        "stylesheet",
+        "script",
+        "image",
+        "font",
+        "object",
+        "xmlhttprequest",
+        "ping",
+        "media",
+        "other"
+      ]
+    }
   }
 ]
