@@ -1,0 +1,197 @@
+name: Release
+
+# Cut a release on demand (Actions -> Release -> Run workflow) once main has
+# collected the fixes/features you want to ship. It bumps the version in both
+# manifests, commits and tags that on main, creates the GitHub release and
+# submits the packages to addons.mozilla.org and the Chrome Web Store.
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version part to bump (relative to the latest v* tag)"
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+      version:
+        description: "Exact version instead (e.g. 1.5.0); overrides bump"
+        type: string
+        required: false
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - name: Only release from main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Run the release workflow on main (got ${GITHUB_REF})."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        env:
+          BUMP: ${{ inputs.bump }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          last_tag=$(git tag --list 'v*' --sort=-v:refname | head -n1)
+          last=${last_tag#v}
+          last=${last:-0.0.0}
+
+          if [ -n "$last_tag" ] && [ -z "$(git log --oneline "$last_tag"..HEAD)" ]; then
+            echo "::error::No commits on main since $last_tag, nothing to release."
+            exit 1
+          fi
+
+          if [ -n "$VERSION" ]; then
+            new=${VERSION#v}
+          else
+            IFS=. read -r major minor patch <<< "$last"
+            case "$BUMP" in
+              major) new="$((major + 1)).0.0" ;;
+              minor) new="$major.$((minor + 1)).0" ;;
+              *)     new="$major.$minor.$((patch + 1))" ;;
+            esac
+          fi
+
+          if ! [[ "$new" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::'$new' is not a version like 1.5.0"
+            exit 1
+          fi
+          newest=$(printf '%s\n%s\n' "$last" "$new" | sort -V | tail -n1)
+          if [ "$new" = "$last" ] || [ "$newest" != "$new" ]; then
+            echo "::error::$new is not newer than the last release $last"
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/v$new" >/dev/null; then
+            echo "::error::Tag v$new already exists"
+            exit 1
+          fi
+
+          echo "Releasing $new (last release: ${last_tag:-none})"
+          echo "version=$new" >> "$GITHUB_OUTPUT"
+          echo "tag=v$new" >> "$GITHUB_OUTPUT"
+
+      - name: Bump manifests, commit and tag
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          for f in manifest.json manifest.chrome.json; do
+            sed -E -i "s/(\"version\"[[:space:]]*:[[:space:]]*\")[^\"]*\"/\1${NEW_VERSION}\"/" "$f"
+            test "$(jq -r .version "$f")" = "$NEW_VERSION"
+          done
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet; then
+            git commit -am "chore: release $TAG"
+          fi
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin HEAD:main "$TAG"
+
+  release:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+
+      - name: Build extension packages
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        # --generate-notes lists every PR merged since the previous tag.
+        run: >
+          gh release create "$TAG"
+          --title "$TAG"
+          --generate-notes
+          --verify-tag
+          dist/koeln-ratsinfo-mirror-firefox.zip
+          dist/koeln-ratsinfo-mirror-chrome.zip
+
+  # Each store job is skipped (with a notice) until its secrets are set.
+  publish-firefox:
+    needs: prepare
+    runs-on: ubuntu-latest
+    env:
+      AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+      AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+
+      - name: Build extension packages
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Submit to addons.mozilla.org
+        if: env.AMO_JWT_ISSUER != '' && env.AMO_JWT_SECRET != ''
+        # Submits the new version to the existing listed add-on; Mozilla's
+        # review then publishes it, so the job doesn't wait for approval.
+        run: >
+          npx --yes web-ext@8 sign
+          --source-dir dist/firefox
+          --artifacts-dir dist/web-ext
+          --channel listed
+          --api-key "$AMO_JWT_ISSUER"
+          --api-secret "$AMO_JWT_SECRET"
+          --approval-timeout 0
+
+      - name: Skip without AMO secrets
+        if: env.AMO_JWT_ISSUER == '' || env.AMO_JWT_SECRET == ''
+        run: echo "::notice::AMO_JWT_ISSUER / AMO_JWT_SECRET not set, Firefox upload skipped."
+
+  publish-chrome:
+    needs: prepare
+    runs-on: ubuntu-latest
+    env:
+      CWS_EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+      CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+      CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+      CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+
+      - name: Build extension packages
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Upload and publish to the Chrome Web Store
+        if: env.CWS_EXTENSION_ID != '' && env.CWS_CLIENT_ID != '' && env.CWS_CLIENT_SECRET != '' && env.CWS_REFRESH_TOKEN != ''
+        run: >
+          npx --yes chrome-webstore-upload-cli@3
+          --source dist/koeln-ratsinfo-mirror-chrome.zip
+          --extension-id "$CWS_EXTENSION_ID"
+          --client-id "$CWS_CLIENT_ID"
+          --client-secret "$CWS_CLIENT_SECRET"
+          --refresh-token "$CWS_REFRESH_TOKEN"
+
+      - name: Skip without Chrome Web Store secrets
+        if: env.CWS_EXTENSION_ID == '' || env.CWS_CLIENT_ID == '' || env.CWS_CLIENT_SECRET == '' || env.CWS_REFRESH_TOKEN == ''
+        run: echo "::notice::CWS_* secrets not set, Chrome Web Store upload skipped."
