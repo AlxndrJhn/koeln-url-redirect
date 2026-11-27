@@ -86,9 +86,30 @@ async function fallbackToOriginal(tabId, page, query) {
   }
 }
 
+// webNavigation errors that don't mean the mirror is down: the load was stopped
+// or replaced (Esc, a click or a reload while the page was still loading, which
+// the upstream scripts behind the page's <base> make slow), or it turned into a
+// download. Chrome reports "net::ERR_ABORTED"; Firefox reports NS_BINDING_ABORTED,
+// NS_BINDING_REDIRECTED and NS_BINDING_RETARGETED as "Error code <nsresult>".
+const IGNORED_NAVIGATION_ERRORS = [
+  "net::ERR_ABORTED",
+  "NS_BINDING_ABORTED",
+  "NS_BINDING_REDIRECTED",
+  "NS_BINDING_RETARGETED",
+  "2152398850",
+  "2152398851",
+  "2152398852",
+];
+
+function isMirrorDownError(error) {
+  return !IGNORED_NAVIGATION_ERRORS.some((ignored) => String(error).includes(ignored));
+}
+
 // Covers network-level failures, including connection timeouts, on the mirror host.
 api.webNavigation.onErrorOccurred.addListener((details) => {
   if (!extensionEnabled) return;
+  if (details.frameId !== 0) return;
+  if (!isMirrorDownError(details.error)) return;
   const match = details.url.match(ALEX_URL_PATTERN);
   if (!match) return;
 
