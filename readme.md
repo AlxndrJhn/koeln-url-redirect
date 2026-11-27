@@ -1,6 +1,6 @@
 # Köln Ratsinfo Redirect
 
-Redirects slow Stadt Köln file links (`getfile.asp`) and Vorlage pages (`vo0050.asp`) to a faster mirror, wherever they are opened from (e.g. a Google Sheet). If the mirror doesn't respond within 2 seconds, the extension automatically falls back to the original stadt-koeln.de URL.
+Redirects slow Stadt Köln file links (`getfile.asp`), Vorlage pages (`vo0050.asp`) and Tagesordnungspunkt pages (`to0050.asp`) to a faster mirror, wherever they are opened from (e.g. a Google Sheet). If the mirror doesn't respond within 2 seconds, the extension automatically falls back to the original stadt-koeln.de URL.
 
 Click the toolbar icon to enable/disable the extension or report an issue.
 
@@ -39,6 +39,11 @@ https://ratsinformation.stadt-koeln.de/getfile.asp?id=1079954&type=do
 
 https://ratsinfo.sessionnet.verwaltung.stadtkoeln.de/si0057.asp?__ksinr=34801
 https://ratsinformation.stadt-koeln.de/si0057.asp?__ksinr=34801
+
+## Tagesordnungspunkt
+
+https://ratsinfo.sessionnet.verwaltung.stadtkoeln.de/to0050.asp?__ktonr=452105
+https://ratsinformation.stadt-koeln.de/to0050.asp?__ktonr=452105
 
 ## Vorlage
 

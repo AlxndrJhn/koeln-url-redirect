@@ -51,6 +51,23 @@
     }
   },
   {
+    "id": 5,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "regexSubstitution": "https://ratsinformation.alex-360.com/to0050.asp?\\1"
+      }
+    },
+    "condition": {
+      "regexFilter": "https://ratsinformation\\.stadt-koeln\\.de/to0050\\.asp\\?(.*)",
+      "resourceTypes": [
+        "main_frame",
+        "sub_frame"
+      ]
+    }
+  },
+  {
     "id": 4,
     "priority": 2,
     "action": {
