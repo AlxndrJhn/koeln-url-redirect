@@ -24,7 +24,11 @@ h1 {
   cursor: pointer;
 }
 
-#report-issue {
+.feedback {
   font-size: 12px;
+  color: #666;
+}
+
+.feedback-link {
   color: #0645ad;
 }
