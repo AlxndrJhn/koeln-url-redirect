@@ -2,7 +2,7 @@
 
 Redirects slow Stadt Köln file links (`getfile.asp`), Vorlage pages (`vo0050.asp`) and Tagesordnungspunkt pages (`to0050.asp`) to a faster mirror, wherever they are opened from (e.g. a Google Sheet). If the mirror doesn't respond within 2 seconds, the extension automatically falls back to the original stadt-koeln.de URL.
 
-Click the toolbar icon to enable/disable the extension or report an issue.
+Click the toolbar icon to enable/disable the extension, or to report a bug / suggest an idea through the mirror's feedback form (`/feedback`), which gets the extension version, its on/off state and the current Ratsinfo tab attached.
 
 ## Build
 
