@@ -4,16 +4,17 @@ const api = typeof browser !== "undefined" ? browser : chrome;
 const RULESET_ID = "ruleset_1";
 // Cloudflare returns this when the alex-360 origin is unreachable.
 const BAD_GATEWAY_STATUS = 502;
-// Matches the mirror URLs produced by rules 2 (files), 3 (Vorlagen) and 5 (Tagesordnungspunkte) in
-// rules.json; captures the page and its query.
+// Matches the mirror URLs produced by rules 2 (files), 3 (Vorlagen), 5 (Tagesordnungspunkte) and
+// 6 (Sitzungen) in rules.json; captures the page and its query.
 const ALEX_URL_PATTERN =
-  /^https:\/\/ratsinformation\.alex-360\.com\/(getfile\.asp|vo0050\.asp|to0050\.asp)\?(.*)$/;
+  /^https:\/\/ratsinformation\.alex-360\.com\/(getfile\.asp|vo0050\.asp|to0050\.asp|si0057\.asp)\?(.*)$/;
 const ORIGINAL_ORIGIN = "https://ratsinformation.stadt-koeln.de";
 const MIRROR_REQUEST_FILTER = {
   urls: [
     "https://ratsinformation.alex-360.com/getfile.asp?id=*",
     "https://ratsinformation.alex-360.com/vo0050.asp?*",
     "https://ratsinformation.alex-360.com/to0050.asp?*",
+    "https://ratsinformation.alex-360.com/si0057.asp?*",
   ],
   types: ["main_frame", "sub_frame"],
 };
