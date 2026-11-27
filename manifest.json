@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Köln Ratsinfo Mirror",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "description": "Ändert die langsamen Stadt Köln URLs zu einem schnelleren Mirror.",
   "browser_specific_settings": {
     "gecko": {
@@ -30,7 +30,9 @@
     "https://ratsinformation.stadt-koeln.de/getfile.asp?id=*",
     "https://ratsinformation.alex-360.com/getfile.asp?id=*",
     "https://ratsinformation.stadt-koeln.de/vo0050.asp?*",
-    "https://ratsinformation.alex-360.com/vo0050.asp?*"
+    "https://ratsinformation.alex-360.com/vo0050.asp?*",
+    "https://ratsinformation.stadt-koeln.de/to0050.asp?*",
+    "https://ratsinformation.alex-360.com/to0050.asp?*"
   ],
   "background": {
     "scripts": [
