@@ -4,10 +4,11 @@ const api = typeof browser !== "undefined" ? browser : chrome;
 const RULESET_ID = "ruleset_1";
 // Cloudflare returns this when the alex-360 origin is unreachable.
 const BAD_GATEWAY_STATUS = 502;
-// Matches the mirror URLs produced by rules 2 (files), 3 (Vorlagen), 5 (Tagesordnungspunkte) and
-// 6 (Sitzungen) in rules.json; captures the page and its query.
+// Matches the mirror URLs produced by rules 2 (files), 3 (Vorlagen), 5 (Tagesordnungspunkte),
+// 6 (Sitzungen), 7 and 8 (Sitzungskalender) in rules.json; captures the page and its query
+// (a calendar may have none).
 const ALEX_URL_PATTERN =
-  /^https:\/\/ratsinformation\.alex-360\.com\/(getfile\.asp|vo0050\.asp|to0050\.asp|si0057\.asp)\?(.*)$/;
+  /^https:\/\/ratsinformation\.alex-360\.com\/(getfile\.asp|vo0050\.asp|to0050\.asp|si0057\.asp|si0040\.asp|si0046\.asp)(?:\?(.*))?$/;
 const ORIGINAL_ORIGIN = "https://ratsinformation.stadt-koeln.de";
 const MIRROR_REQUEST_FILTER = {
   urls: [
@@ -15,6 +16,8 @@ const MIRROR_REQUEST_FILTER = {
     "https://ratsinformation.alex-360.com/vo0050.asp?*",
     "https://ratsinformation.alex-360.com/to0050.asp?*",
     "https://ratsinformation.alex-360.com/si0057.asp?*",
+    "https://ratsinformation.alex-360.com/si0040.asp*",
+    "https://ratsinformation.alex-360.com/si0046.asp*",
   ],
   types: ["main_frame", "sub_frame"],
 };
@@ -78,7 +81,7 @@ async function removeSessionRule(ruleId) {
 }
 
 async function fallbackToOriginal(tabId, page, query) {
-  const originalUrl = `${ORIGINAL_ORIGIN}/${page}?${query}`;
+  const originalUrl = query ? `${ORIGINAL_ORIGIN}/${page}?${query}` : `${ORIGINAL_ORIGIN}/${page}`;
   const ruleId = await addFallbackAllowRule(originalUrl);
   try {
     await api.tabs.update(tabId, { url: originalUrl });
