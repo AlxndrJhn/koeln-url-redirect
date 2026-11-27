@@ -1,6 +1,6 @@
 # Köln Ratsinfo Redirect
 
-Redirects slow Stadt Köln file links (`getfile.asp`), Vorlage pages (`vo0050.asp`), Tagesordnungspunkt pages (`to0050.asp`), Sitzung pages (`si0057.asp`) and the meeting calendars (`si0040.asp`, `si0046.asp`) to a faster mirror, wherever they are opened from (e.g. a Google Sheet). If the mirror doesn't respond within 2 seconds, the extension automatically falls back to the original stadt-koeln.de URL.
+Redirects slow Stadt Köln file links (`getfile.asp`), Vorlage pages (`vo0050.asp`), Tagesordnungspunkt pages (`to0050.asp`), Sitzung pages (`si0057.asp`) and the meeting calendars (`si0040.asp`, `si0046.asp`) to a faster mirror, wherever they are opened from (e.g. a Google Sheet). `http://` links and requests to these hosts (SessionNet, ratsinformation.stadt-koeln.de, the mirror) are upgraded to `https://` first (rule 9, `upgradeScheme`, which needs no extra host permissions). If the mirror doesn't respond within 2 seconds, the extension automatically falls back to the original stadt-koeln.de URL.
 
 Click the toolbar icon to enable/disable the extension, or to report a bug / suggest an idea through the mirror's feedback form (`/feedback`), which gets the extension version, its on/off state and the current Ratsinfo tab attached.
 
